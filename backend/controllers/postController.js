@@ -64,7 +64,7 @@ exports.updatePost=async(req,res)=>{
 }
 
 exports.deletePost=async(req,res)=>{
-    const {id}=user.params;
+    const {id}=req.params;
     const userId=req.user.id;
 
     try{
