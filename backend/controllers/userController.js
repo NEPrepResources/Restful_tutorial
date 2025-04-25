@@ -3,21 +3,27 @@ const pool = require('../db/index')
 const jwt= require('jsonwebtoken')
 
 exports.register=async(req,res)=>{
-    const {name, email, password, confirmPassoword}=req.body // the items thatt must be in the body for making request complete
+    const {name, email, password, confirmPassword}=req.body // the items thatt must be in the body for making request complete
     try{
+        if(!name || !email || !password || !confirmPassword){
+            return res.status(400).json({error: "All fields are required!"})
+        }
+        if(password!==confirmPassword){
+            return res.status(400).json({error:"The passwords do not match"})
+        }
         const userExist= await pool.query('SELECT * FROM users WHERE email=$1', [email])
         if(userExist.rows.length>0){
             return res.status(400).json({error:"The user already exists"});
         }
+    
+        const salt=await bcrypt.genSalt(10)
+        const hashedPassword=await bcrypt.hash(password, salt);
 
-        if(password!=confirmPassoword){
-            return res.statu(400).json({error:"The passwords do not match"})
-        }
-        const salt=bcrypt.genSalt(10)
-        const hashedPassword=bcrypt.hash(password, salt);
-
-        const newUser=await pool.query('INSERT INTO users (name, email, password, confirmPassword) VALUES ($1, $2, $3, $4)', [name, email, password, confirmPassoword]);
-        res.status(201).json({success:"User registered successfuylly", user:newUser.rows[0]});
+        const newUser=await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, password]);
+        res.status(201).json({
+            success:"User registered successfuylly", 
+            user:newUser.rows[0]
+        });
     }catch(err){
         res.status(500).json({error: err.message})
     }
