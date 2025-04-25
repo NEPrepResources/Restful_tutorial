@@ -19,7 +19,7 @@ exports.register=async(req,res)=>{
         const salt=await bcrypt.genSalt(10)
         const hashedPassword=await bcrypt.hash(password, salt);
 
-        const newUser=await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, password]);
+        const newUser=await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword]);
         res.status(201).json({
             success:"User registered successfuylly", 
             user:newUser.rows[0]
@@ -32,6 +32,11 @@ exports.register=async(req,res)=>{
 exports.login= async(req,res)=>{
     const { email, password }=req.body;
     try{
+
+        if(!email || !password){
+            return res.status(400).json({error: "All fields are required"})
+        }
+
         const user= pool.query('SELECT * FROM users where email=$1', [email])
         
         if((await user).rows.length===0){
