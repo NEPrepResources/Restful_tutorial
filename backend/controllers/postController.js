@@ -44,7 +44,7 @@ exports.getPostById=async(req,res)=>{
 exports.updatePost=async(req,res)=>{
     const {id}=req.params;
     const {title, content}=req.body;
-    const {userID}=req.user.id;
+    const userID=req.user.id;
 
     try{
         const existing=await pool.query('SELECT * FROM posts WHERE id=$1', [id])
