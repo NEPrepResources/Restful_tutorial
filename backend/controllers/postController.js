@@ -15,7 +15,7 @@ exports.createPost=async(req,res)=>{
     };
 }
 
-exports.getPost=async(req,res)=>{
+exports.getAllPosts=async(req,res)=>{
     try{
         const allPosts=await pool.query(
             'SELECT * FROM posts'
